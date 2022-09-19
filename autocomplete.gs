@@ -152,13 +152,12 @@ function completedText(text) {
 
 
     var response = UrlFetchApp.fetch(
-  
-  'https://api.openai.com/v1/completions',
-      options,
+        'https://api.openai.com/v1/completions',
+        options,
     );
 
 
-  out = JSON.parse(response.getContentText())['choices'][0]['text'];
+  out = JSON.parse(response.getContentText())['choices'][0]['text'].trim();
   Logger.log(out);
   return out;
 }
