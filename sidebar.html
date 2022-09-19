@@ -76,23 +76,23 @@
                 </div>
                 <div>
                     <label for="max-tokens-label"><b>Max tokens</b></label> <!-- TODO: should only accept ints -->
-                    <input type="number" id="max-tokens-in">
+                    <input type="number" step=1 min=1 max=4096 id="max-tokens-in">
                 </div>
                 <div>
                     <label for="temperature-label"><b>Temperature</b></label> <!-- TODO: should only accept ints -->
-                    <input type="number" id="temperature-in">
+                    <input type="number" step=0.01 id="temperature-in">
                 </div>
                 <div>
                     <label for="top-p-label"><b>top_p</b></label> <!-- TODO: should only accept ints -->
-                    <input type="number" id="top-p-in">
+                    <input type="number" step=0.01 id="top-p-in">
                 </div>
                 <div>
                     <label for="presence-penalty-label"><b>presence_penalty</b></label> <!-- TODO: should only accept float between -2 and 2-->
-                    <input type="number" id="presence-penalty-in">
+                    <input type="number" step=0.01 min=-2.0 max=2.0 id="presence-penalty-in">
                 </div>
                 <div>
                     <label for="frequency-penalty-label"><b>frequency_penalty</b></label> <!-- TODO: should only accept float between -2 and 2-->
-                    <input type="number" id="frequency-penalty-in">
+                    <input type="number" step=0.01 min=-2.0 max=2.0 id="frequency-penalty-in">
                 </div>
             </div>
         </form>
