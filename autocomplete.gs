@@ -17,13 +17,13 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
+var defaultApiKey = "YOUR-API-KEY";
+
 function onOpen(e) {
     DocumentApp.getUi().createAddonMenu()
         .addItem('Start', 'showSidebar')
         .addToUi();
 }
-
-var apiKey = "YOUR-API-KEY";
 
 /**
  * Runs when the add-on is installed.
@@ -39,7 +39,6 @@ var apiKey = "YOUR-API-KEY";
 function onInstall(e) {
     onOpen(e);
 }
-
 
 /**
  * Opens a sidebar in the document containing the add-on's user interface.
@@ -120,26 +119,39 @@ function getPreferences() {
  * @return {Object} Object containing the original text and the result of the
  *     translation.
  */
-function getTextAndTranslation(origin, dest, savePrefs) {
+function getTextAndTranslation(apiKeyIn, modelIn, maxTokensIn, temperatureIn, topPIn, presencePenaltyIn, frequencyPenaltyIn, origin, dest, savePrefs) {
     if (savePrefs) {
         PropertiesService.getUserProperties()
             .setProperty('originLang', origin)
             .setProperty('destLang', dest);
     }
     const text = getSelectedText().join('\n');
+
+    // Set defaults if value not passed in | TODO: ensure values are withtin proper bounds here
+    const apiKey = apiKeyIn != "" ? apiKeyIn : defaultApiKey;
+    const model = modelIn != "" ? modelIn : "text-davinci-002";
+    const maxTokens = maxTokensIn != "" ? parseInt(maxTokensIn) : 100;
+    const temperature = temperatureIn != "" ? parseFloat(temperatureIn) : 0.9;
+    const topP = topPIn != "" ? topPIn: 1;
+    const presencePenalty = presencePenaltyIn != "" ? parseFloat(presencePenaltyIn) : 0;
+    const frequencyPenalty = frequencyPenaltyIn != "" ? parseFloat(frequencyPenaltyIn) : 0;
+
     return {
         text: text,
-        translation: completedText(text)
+        translation: completedText(apiKey, model, maxTokens, temperature, topP, presencePenalty, frequencyPenalty, text)
     };
 }
 
-function completedText(text) {
+function completedText(apiKey, model, maxTokens, temperature, topP, presencePenalty, frequencyPenalty, text) {
 
     var data = {
-        "model": "text-davinci-002",
+        "model": model,
         "prompt": "Complete the following text: " + text,
-        "temperature": 0,
-        "max_tokens": 500
+        "temperature": temperature,
+        "max_tokens": maxTokens,
+        "top_p": topP,
+        "presence_penalty": presencePenalty,
+        "frequency_penalty": frequencyPenalty
     };
     var options = {
         'method': 'post',
@@ -150,12 +162,10 @@ function completedText(text) {
         },
     };
 
-
     var response = UrlFetchApp.fetch(
         'https://api.openai.com/v1/completions',
         options,
     );
-
 
     out = JSON.parse(response.getContentText())['choices'][0]['text'].trim();
     Logger.log(out);
@@ -262,3 +272,4 @@ function translateText(text, origin, dest) {
     if (origin === dest) return text;
     return LanguageApp.translate(text, origin, dest);
 }
+

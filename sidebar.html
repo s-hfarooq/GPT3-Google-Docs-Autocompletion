@@ -38,6 +38,11 @@
         .width-100 {
             width: 100%;
         }
+
+        .content {
+            display: none;
+            overflow: hidden;
+        }
     </style>
     <title></title>
 </head>
@@ -53,10 +58,63 @@
                 <button class="blue" id="run-translation">Autocomplete Selected Text</button>
                 <button id="insert-text">Insert</button>
             </div>
+            <br><br>
+            <button type="button" class="collapsible">Open Advanced Settings</button>
+            <div class="content">
+                <div>
+                    <label for="api-key-label"><b>API Key</b></label>
+                    <input type="text" id="api-key-in">
+                </div>
+                <div>
+                    <label for="model-label"><b>Model</b></label>
+                    <select name="model-in" id="model-in">
+                      <option value="text-davinci-002">text-davinci-002</option>
+                      <option value="text-curie-001">text-curie-001</option>
+                      <option value="text-babbage-001">text-babbage-001</option>
+                      <option value="text-ada-001">text-ada-001</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="max-tokens-label"><b>Max tokens</b></label> <!-- TODO: should only accept ints -->
+                    <input type="number" id="max-tokens-in">
+                </div>
+                <div>
+                    <label for="temperature-label"><b>Temperature</b></label> <!-- TODO: should only accept ints -->
+                    <input type="number" id="temperature-in">
+                </div>
+                <div>
+                    <label for="top-p-label"><b>top_p</b></label> <!-- TODO: should only accept ints -->
+                    <input type="number" id="top-p-in">
+                </div>
+                <div>
+                    <label for="presence-penalty-label"><b>presence_penalty</b></label> <!-- TODO: should only accept float between -2 and 2-->
+                    <input type="number" id="presence-penalty-in">
+                </div>
+                <div>
+                    <label for="frequency-penalty-label"><b>frequency_penalty</b></label> <!-- TODO: should only accept float between -2 and 2-->
+                    <input type="number" id="frequency-penalty-in">
+                </div>
+            </div>
         </form>
     </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        } 
+    </script>
     <script>
         /**
          * On document load, assign click handlers to each button and try to load the
@@ -94,6 +152,15 @@
             const origin = $('input[name=origin]:checked').val();
             const dest = $('input[name=dest]:checked').val();
             const savePrefs = $('#save-prefs').is(':checked');
+
+            const apiKeyIn = $('input[id=api-key-in]').val();
+            const modelIn = $('select[id=model-in]').val();
+            const maxTokensIn = $('input[id=max-tokens-in]').val();
+            const temperatureIn = $('input[id=temperature-in]').val();
+            const topPIn = $('input[id=top-p-in]').val();
+            const presencePenaltyIn = $('input[id=presence-penalty-in]').val();
+            const frequencyPenaltyIn = $('input[id=frequency-penalty-in]').val();
+
             google.script.run
                 .withSuccessHandler(
                     function (textAndTranslation, element) {
@@ -106,7 +173,7 @@
                         element.disabled = false;
                     })
                 .withUserObject(this)
-                .getTextAndTranslation(origin, dest, savePrefs);
+                .getTextAndTranslation(apiKeyIn, modelIn, maxTokensIn, temperatureIn, topPIn, presencePenaltyIn, frequencyPenaltyIn, origin, dest, savePrefs);
         }
 
         /**
